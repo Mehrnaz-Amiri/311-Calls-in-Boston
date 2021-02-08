@@ -25,23 +25,18 @@ colnames(CRM_311)
 colnames(CRM_311)[apply(is.na(CRM_311), 2, any)]
 # Checking for columns which all their values are NA
 colnames(my_data)[apply(is.na(my_data), 2, any)]
-table(CRM_311$SUBJECT)
-table(CRM_311$TYPE)
 ```
 
 
 ```{r}
 # Convert to Date format
-library(lubridate)  
+library(lubridate) 
 m <- as.POSIXct(CRM_311$OPEN_DT,format="%Y-%m-%d %H:%M:%S",tz=Sys.timezone())
 h <- ymd_hms(CRM_311$OPEN_DT,tz=Sys.timezone())
 CRM_311$OPEN_DT <- as.Date(h, format = "%Y-%m-%d %H:%M:%S'")
-
 n <- as.POSIXct(CRM_311$CLOSED_DT,format="%Y-%m-%d %H:%M:%S",tz=Sys.timezone())
 c <- ymd_hms(CRM_311$CLOSED_DT,tz=Sys.timezone())
 CRM_311$CLOSED_DT <- as.Date(c, format = "%Y-%m-%d %H:%M:%S'")
-
-
 ```
 
 ```{r}
@@ -49,10 +44,8 @@ CRM_311$weekdays <- weekdays(CRM_311$OPEN_DT)
 months2015 <- months(CRM_311$OPEN_DT[year(CRM_311$OPEN_DT) == 2015])
 df2015 <- data.frame(table(months2015))
 months2016 <- months(CRM_311$OPEN_DT[year(CRM_311$OPEN_DT) == 2016])
-table(months2016)
 df2016 <- data.frame(table(months2016))
 df2 <- data.frame(df2015, df2016)
-df2
 table(weekdays(CRM_311$OPEN_DT))
 table(weekdays(CRM_311$CLOSED_DT))
 n <- ggplot(df2, aes(x = months2015, y = Freq, group = 1)) + geom_point(color = "blue") + geom_line(color = "navy") + labs(x = "Months", y = 'Number of calls', title ='Number of received calls in each month') + theme_bw()
@@ -62,8 +55,6 @@ ggsave("m.png", path = "~/Desktop")
 ```
 
 ```{r}
-library(ggplot2)
-
 months2015 <- months(rox$OPEN_DT[year(rox$OPEN_DT) == 2015])
 df2015 <- data.frame(table(months2015))
 months2016 <- months(rox$OPEN_DT[year(rox$OPEN_DT) == 2016])
@@ -77,25 +68,18 @@ months20166 <- months(rox$CLOSED_DT[year(rox$CLOSED_DT) == 2016])
 df20166 <- data.frame(table(months20166))
 df22 <- data.frame(df20155, df20166)
 
-
-
-dfasli2 <- merge(df2, df22, by.x = 'months2015', by.y = 'months20155', all.x = TRUE, all.yb = TRUE)
-dfasli2 
+dfasli2 <- merge(df2, df22, by.x = 'months2015', by.y = 'months20155', all.x = TRUE, all.yb = TRUE) 
 j2 <- dfasli2 %>%
   ggplot(aes(x = months2015, y = dfasli2$Freq.x, group = 1)) + geom_line(color = "brown") + geom_line(y = dfasli2$Freq.y, group = 1) + labs(x = "Months", y = 'Number of calls in Roxbury', title ='Number of received and addressed calls in each month in Roxbury') + theme_bw()
-j2
 ggsave("j2.png", path = "~/Desktop")
 ```
 
 ```{r}
-library(ggplot2)
-
 months2015 <- months(CRM_311$OPEN_DT[year(CRM_311$OPEN_DT) == 2015])
 df2015 <- data.frame(table(months2015))
 months2016 <- months(CRM_311$OPEN_DT[year(CRM_311$OPEN_DT) == 2016])
 df2016 <- data.frame(table(months2016))
 df2 <- data.frame(df2015, df2016)
-
 
 months20155 <- months(CRM_311$CLOSED_DT[year(CRM_311$CLOSED_DT) == 2015])
 df20155 <- data.frame(table(months20155))
@@ -107,24 +91,15 @@ dfasli <- merge(df2, df22, by.x = 'months2015', by.y = 'months20155', all.x = TR
 dfasli 
 j <- dfasli %>%
   ggplot(aes(x = months2015, y = dfasli$Freq.x, group = 1)) + geom_line(color = "blue") + geom_line(y = dfasli$Freq.y, group = 1) + labs(x = "Months", y = 'Number of calls in Boston', title ='Number of received and addressed calls in each month in Boston') + theme_bw()
-j
 ggsave("j.png", path = "~/Desktop")
 ```
 
 
-
-
-
 ```{r}
-sum(table(rox$OPEN_DT))
-
 require(ggplot2)
 require(ggmap)
 Boston <- get_map(location=c(left = -71.193799, bottom = 42.15, right = -70.985746, top = 42.5))
 Bostonmap <- ggmap(Boston)
-
-
-
 Bostonmap + stat_density2d(aes(x = X, y = Y, fill = ..level.., alpha = .5), size = .5, bins = 8, data = CRM_311, geom = "polygon")
 # Location of each Boston Police Department District in Boston
 Bostonmap + geom_density2d(aes(x = X, y = Y), data = CRM_311)+labs(fill='Density of 311 calls in Boston')
@@ -143,15 +118,11 @@ ggsave("g1.png", path = "~/Desktop")
 g2 <- ggplot(CRM_311[!is.na(CRM_311$BRA_PD),]) + geom_bar(aes(x = BRA_PD), fill = "pink", width = 0.5) + theme_classic() +
   theme(axis.text.x = element_text(angle=90, vjust=0.6, size = 10)) + ggtitle("The number of 311 calls in each neighborhood") + xlab("Neighborhoods") 
 ggsave("g2.png", path = "~/Desktop")
-
-table(CRM_311$REASON)
 ```
 
 
 ```{r}
 library(sqldf)
-## Latent variable (1): flexible_host
-# Using sqldf command to execute multiple aggregation for flexible_host
 b <- sqldf("select BRA_PD as Neighborhood,
                       sum(PUBLIC == 1) as PUBLIC,
                       sum(HOUSING == 1) as HOUSING,
@@ -165,70 +136,35 @@ b <- sqldf("select BRA_PD as Neighborhood,
                       from CRM_311
                       where BRA_PD !='NA'
                       group by BRA_PD")
-
-
-
-b
 write.csv(b,"~/Desktop/nbhd_311.csv", row.names = FALSE)
-
-
-
 j <- ggplot(b, aes(Neighborhood, GRAFFITI, fill = as.factor(BIGBUILD))) + geom_bar(stat = "summary", fun.y = "mean") + theme_classic() +theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 10)) + labs(fill = "Big Buildings") + ggtitle("Number of big buildings and graffiti problems at neighborhood level")
-j
 ggsave("j.png", path = "~/Desktop")
 p <- ggplot(b, aes(Neighborhood, HOUSING, size = TRASH)) + geom_point(color = 'red') + theme_classic() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 10)) + ggtitle("Number of trash and housing problems at neighborhood level")
 ggsave("p.png", path = "~/Desktop")
-
-
 rox <- CRM_311[CRM_311$BRA_PD == "Roxbury",]
 table(rox$REASON)
 rox$months2015 <- months(CRM_311$OPEN_DT[year(CRM_311$OPEN_DT) == 2015])
-
-library(ggplot2)
-
 g <- ggplot(rox[!is.na(rox$SOURCE),], aes(x = REASON)) + geom_bar(aes(fill = as.factor(SOURCE))) + theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8)) + labs(fill = "Source") + xlab("Roxbury")+ ggtitle("Reasons and Source of Received calls in Roxbury")
-g
-
 ggsave("g.png", path = "~/Desktop")
-
-
-
-
-
-
 
 library(ggdendro)
 hc <- hclust(dist(b), "ave")
 h <- ggdendrogram(hc, rotate = FALSE, size = 2) 
-h
 
 library(tidyverse)
 j <- as.data.frame(select(rox, PUBLIC, HOUSING, UNCIVILUSE, BIGBUILD, GRAFFITI, TRASH, PRIVATENEGLECT, PUBLICDENIG,PROBLEM)) 
-
-
 o2 <- boxplot(j,
 main="Subjects of problems that are received in Roxbury",
 ylab="Number of 311 calls",
 col="orange",
 border="brown", las =2,  cex.axis=0.75)
-o2
 ggsave("o2.png", path = "~/Desktop")
-
-table(CRM_311$BRA_PD)
-
 ```
 
 ```{r}
-b$Neighborhood
 library(igraph)
 n <- b[b$Neighborhood == "Back Bay/Beacon Hill",]
-
-
-
-
-
-n
 BPD_no.na <- b$Neighborhood[!is.na(b$Neighborhood) == "Back Bay/Beacon Hill",]
 Zipcode_no.na <- b$PROBLEM[!is.na(b$PROBLEM)]
 nodes_911 <- as.data.frame(c(unique(BPD_no.na), unique(Zipcode_no.na)))
@@ -254,10 +190,7 @@ nbhd <- st_read(dsn="~/Desktop/Big data for cities/Mapping/bra_planning_district
 # Convert coordinate system
 nbhd <- st_transform(nbhd, "+proj=longlat +datum=NAD83 +no_defs")
 nbhd_311 <- read.csv("~/Desktop/nbhd_311.csv", sep = ",", header = TRUE, stringsAsFactors=FALSE)
-# Merging shapefile and latent variable's file
 nbhd <- merge(nbhd, nbhd_311, by.x='PD', by.y = 'Neighborhood',all.x=TRUE)
-
-# Strict Hosts
 library(tmap) 
 tmap_mode('view')
 tm_shape(nbhd) + tm_polygons(c('PROBLEM', 'PUBLIC') , palette=list("Oranges","Reds"), style = "jenks")  + tm_view(alpha = 0.85,view.legend.position = c("right", "bottom")) +  tm_facets(nrow=2,ncol=2)  + tm_layout(title = c("Problem", "Public"))
@@ -265,65 +198,35 @@ save_tmap(m2, "CRM.png", width=1920, height=1080, asp=0)
 ```
 
 
-```
-
-
-
 ```{r}
-
-table(CRM_311$REASON)
-library(ggplot2)
 g1 <- ggplot(CRM_311) + geom_bar(aes(REASON), fill = "tan", width = 0.5) +
   theme(axis.text.x = element_text(angle=90, vjust=0.6)) + ggtitle("The subject of the request received ")
 ggsave("g1.png", path = "~/Desktop")
-
-
 n <- rox[complete.cases(rox$CLOSED_DT),]
 m <- qplot(weekdays(n$CLOSED_DT), fill = weekdays(n$CLOSED_DT)) + xlab("The weekdays the case was deemed fully addressed by city services") + labs(fill = "Weekdays of closed case")
-m
-
 ggplot(data= rox, aes(x=weekdays(rox$CLOSED_DT))) + 
 geom_bar(stat="bin")
 last_plot() + coord_polar()
 rox$close_time = (as.numeric(rox$CLOSED_DT - rox$OPEN_DT))
-
 ggplot(rox) + geom_bar(aes(close_time), fill = "tan") 
 
-
-
 close_time = (as.numeric(CRM_311$CLOSED_DT - CRM_311$OPEN_DT))
-close_time
 
-library(dplyr)
 dt <- CRM_311 %>% mutate(close_time = (as.numeric(CLOSED_DT - OPEN_DT)), open_year = as.factor(format(CRM_311$OPEN_DT, format = "%Y")), open_month = as.factor(format(CRM_311$OPEN_DT, format = "%m")))
 dt$REASON <- as.factor(dt$REASON)
 
-
 exp_dt <- dt %>% group_by(open_year, open_month) %>% summarize(num_calls = n(), num_reason = n_distinct(REASON), mean_close = round(mean(close_time, na.rm = T),4), median_close = round(median(close_time, na.rm = T),4), max = max(close_time, na.rm = T))
 head(exp_dt)
-
 t <- ggplot(exp_dt , aes(y=num_calls/1000, x=open_year, alpha = num_calls, fill = open_month, color = open_month)) + geom_bar(stat="identity") + ggtitle("Number of 311 Requests by year") + xlab("Year") + ylab("Number of Requets (Thousands)")
-t
-
-
 t <- ggplot(exp_dt , aes(y=num_calls/1000, x=open_year, alpha = num_calls, fill = open_month, color = open_month)) + geom_bar(stat="identity") + ggtitle("Number of 311 Requests by year") + xlab("Year") + ylab("Number of Requets (Thousands)")
-
 ggplot(exp_dt, aes(exp_dt$num_reason)) + geom_bar(aes(fill = exp_dt$open_month))
-
-exp_dt$num_reason
 ```
 
 ```{r}
-
-
-table(CRM_311$BRA_PD)
 b <- b[,-1]
 as.matrix(b)
 row.names(b) <-  c("West Roxbury", "South End", "South Dorchester", "South Boston", "Roxbury", "Roslindale", "North Dorchester", "Mattapan", "Jamaica Plain", "Hyde Park", "Fenway/Kenmore", "East Boston","Charlestown", "Central","Back Bay/Beacon Hill", "Allston/Brighton" )
-
 heatmap(as.matrix(b), scale = 'column', col= heat.colors(256), main = 'heatmap',Rowv = NA, Colv = NA)
-
-
 ```
 
 
